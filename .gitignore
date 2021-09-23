@@ -2,3 +2,5 @@
 /.idea
 **/*.rs.bk
 Cargo.lock
+myfile
+myfile2
