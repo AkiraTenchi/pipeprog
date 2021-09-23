@@ -1,12 +1,21 @@
 use clap::{App, Arg, ArgMatches};
-use log::info;
 use std::env;
+use std::fs::File;
 use std::io::{self, ErrorKind, Read, Result, Write};
 
 const CHUNK_SIZE: usize = 16 * 1024;
 
 fn main() -> Result<()> {
     let matches = argument_handler();
+    let (infile, outfile, silent) = arguments_to_vars(matches);
+
+    let reader = create_reader(&infile).unwrap();
+    let writer = create_writer(&outfile).unwrap();
+
+    take_input(&silent, reader, writer)
+}
+
+fn arguments_to_vars(matches: ArgMatches) -> (String, String, bool) {
     let infile = matches.value_of("infile").unwrap_or_default();
     let outfile = matches.value_of("outfile").unwrap_or_default();
     let silent = if matches.is_present("silent") {
@@ -14,11 +23,32 @@ fn main() -> Result<()> {
     } else {
         !env::var("PV_SILENT").unwrap_or_default().is_empty()
     };
-    info!("{}{}{}", infile, outfile, silent);
+    (infile.to_string(), outfile.to_string(), silent)
+}
+
+fn create_writer(outfile: &str) -> Result<Box<dyn Write>> {
+    let writer: Box<dyn Write> = if !outfile.is_empty() {
+        Box::new(File::create(outfile)?)
+    } else {
+        Box::new(io::stdout())
+    };
+    Ok(writer)
+}
+
+fn create_reader(infile: &str) -> Result<Box<dyn Read>> {
+    let reader: Box<dyn Read> = if !infile.is_empty() {
+        Box::new(File::open(infile)?)
+    } else {
+        Box::new(io::stdin())
+    };
+    Ok(reader)
+}
+
+fn take_input(silent: &bool, mut reader: Box<dyn Read>, mut writer: Box<dyn Write>) -> Result<()> {
     let mut total_bytes = 0;
     let mut buffer = [0; CHUNK_SIZE];
     loop {
-        let num_read = match io::stdin().read(&mut buffer) {
+        let num_read = match reader.read(&mut buffer) {
             Ok(0) => break,
             Ok(x) => x,
             Err(_) => break,
@@ -27,7 +57,7 @@ fn main() -> Result<()> {
         if !silent {
             eprint!("\rtotal_bytes: {}", total_bytes);
         }
-        if let Err(e) = io::stdout().write_all(&buffer[..num_read]) {
+        if let Err(e) = writer.write_all(&buffer[..num_read]) {
             if e.kind() == ErrorKind::BrokenPipe {
                 break;
             }
