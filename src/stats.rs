@@ -1,4 +1,6 @@
-mod output_formatter;
+//! The stats module contains the loop keeping track and timing the output of the transfer statistics
+
+pub mod output_formatter;
 mod timer;
 
 use crossbeam::channel::Receiver;

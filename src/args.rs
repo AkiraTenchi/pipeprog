@@ -1,3 +1,5 @@
+//! takes cmd arguments and parses them
+
 use clap::{App, Arg};
 use std::env;
 

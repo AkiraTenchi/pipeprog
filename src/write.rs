@@ -1,3 +1,5 @@
+//! contains the loop that continuously writes buffered data into stdout or outfile
+
 use crossbeam::channel::Receiver;
 use std::fs::File;
 use std::io::{self, BufWriter, ErrorKind, Result, Write};

@@ -1,3 +1,5 @@
+//! contains the loop that continuously reads the data from stdin or the infile into the buffer
+
 use crate::CHUNK_SIZE;
 use crossbeam::channel::Sender;
 use std::fs::File;

@@ -1,3 +1,5 @@
+//! time management for the stats module
+
 use std::time::{Duration, Instant};
 
 pub struct Timer {

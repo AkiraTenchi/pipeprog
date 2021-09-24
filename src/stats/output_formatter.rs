@@ -1,10 +1,18 @@
+//! The output formatter contains all the code required to make the output readable
+
 use crossterm::{
     cursor, execute,
     style::{self, Color, PrintStyledContent, Stylize},
 };
 use std::io::Write;
 
-pub(crate) fn output_progress(output: &mut impl Write, bytes: usize, elapsed: String, rate: f64) {
+/// Styles and outputs the progress information of the piping operation
+/// # Example Function Call
+/// ```rust
+///  use pipeprog::stats::output_formatter::output_progress;
+///  output_progress(&mut output, 12, "10".to_string(), 400.0);
+/// ```
+pub fn output_progress(output: &mut impl Write, bytes: usize, elapsed: String, rate: f64) {
     let bytes = style::style(format!("{} ", bytes).with(Color::Rgb {
         r: 255,
         g: 204,
@@ -30,11 +38,20 @@ pub(crate) fn output_progress(output: &mut impl Write, bytes: usize, elapsed: St
     let _ = output.flush();
 }
 
-pub(crate) trait TimeOutput {
+/// The TimeOutput trait adds a `.as_time()` method to `u64`
+///
+/// # Example
+///
+/// ```rust
+/// use pipeprog::stats::output_formatter::TimeOutput;
+/// assert_eq!(65_u64.as_time(), String::from("0:01:05"))
+/// ```
+pub trait TimeOutput {
     fn as_time(&self) -> String;
 }
 
 impl TimeOutput for u64 {
+    /// Turns the u64 into a time String
     fn as_time(&self) -> String {
         let (hours, left) = (*self / 3600, *self % 3600);
         let (minutes, seconds) = (left / 60, left % 60);
