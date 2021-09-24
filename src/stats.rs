@@ -9,7 +9,11 @@ pub fn stats_loop(silent: bool, stats_rx: Receiver<usize>) -> Result<()> {
         let num_bytes = stats_rx.recv().unwrap();
         total_bytes += num_bytes;
         if !silent {
-            eprint!("\rtotal_bytes: {} {}", total_bytes, start.elapsed().as_secs());
+            eprint!(
+                "\rtotal_bytes: {} {}",
+                total_bytes,
+                start.elapsed().as_secs()
+            );
         }
         if num_bytes == 0 {
             break;
