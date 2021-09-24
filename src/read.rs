@@ -1,9 +1,8 @@
 use crate::CHUNK_SIZE;
+use crossbeam::channel::Sender;
 use std::fs::File;
 use std::io::{self, BufReader, Read, Result};
-use std::sync::{Arc, Mutex};
-
-pub fn read_loop(infile: &str, quit: Arc<Mutex<bool>>) -> Result<()> {
+pub fn read_loop(infile: &str, stats_tx: Sender<usize>, write_tx: Sender<Vec<u8>>) -> Result<()> {
     let mut reader: Box<dyn Read> = if !infile.is_empty() {
         Box::new(BufReader::new(File::open(infile)?))
     } else {
@@ -17,11 +16,14 @@ pub fn read_loop(infile: &str, quit: Arc<Mutex<bool>>) -> Result<()> {
             Ok(x) => x,
             Err(_) => break,
         };
-        //todo: send buffer to the stats thread
-        Vec::from(&buffer[..num_read]);
+        let _ = stats_tx.send(num_read);
+        // send data to stats thread and shutdown if sending data fails
+        if write_tx.send(Vec::from(&buffer[..num_read])).is_err() {
+            break;
+        }
     }
-    //todo: send empty buffer to stats thread
-    let mut quit = quit.lock().unwrap();
-    *quit = true;
+    // send empty vec to stats thread and ignore result because thread is shutting down
+    let _ = stats_tx.send(0);
+    let _ = write_tx.send(Vec::new());
     Ok(())
 }
