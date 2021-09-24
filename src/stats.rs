@@ -4,7 +4,6 @@ use crossterm::style::Stylize;
 use crossterm::{
     cursor, execute,
     style::{self, Color, PrintStyledContent},
-    terminal::{Clear, ClearType},
 };
 use std::io::{stderr, Result, Stderr, Write};
 use std::time::Instant;
