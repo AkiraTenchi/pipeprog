@@ -35,3 +35,22 @@ impl Args {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Args;
+
+    #[test]
+    fn test_with_no_cmd_args() {
+        let args = Args::parse();
+        let Args {
+            infile,
+            outfile,
+            silent,
+        } = args;
+
+        assert_eq!(infile, "");
+        assert_eq!(outfile, "");
+        assert_eq!(silent, false);
+    }
+}

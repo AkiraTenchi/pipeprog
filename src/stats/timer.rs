@@ -44,7 +44,7 @@ impl Timer {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::Timer;
 
     #[test]
