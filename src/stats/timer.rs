@@ -42,3 +42,21 @@ impl Timer {
         self.ready = false;
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use super::Timer;
+
+    #[test]
+    fn check_if_ready_initialised_as_true() {
+        let timer = Timer::new();
+        assert!(timer.get_ready());
+    }
+
+    #[test]
+    fn check_if_unready_sets_ready_to_false() {
+        let mut timer = Timer::new();
+        timer.unready();
+        assert_eq!(timer.get_ready(), false);
+    }
+}
